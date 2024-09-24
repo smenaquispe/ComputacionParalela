@@ -1,54 +1,68 @@
-#include<iostream>
-#include<chrono>  // Para medir el tiempo
-using namespace std;
+#include <iostream>
+#include <ctime>  // Para medir el tiempo de ejecución
+
+// Definir el valor de MAX
+#define MAX 10000
 
 int main() {
+    // Asignación dinámica de memoria para la matriz A y los vectores x e y
+    double** A = new double*[MAX];
+    for (int i = 0; i < MAX; i++) {
+        A[i] = new double[MAX];
+    }
     
-    cout<<"a"<<endl;
-    const unsigned int MAX = 1000;
-    int i, j;
+    double* x = new double[MAX];
+    double* y = new double[MAX];
 
-
-    // double A[MAX][MAX] = {{1.0, 2.0}, {3.0, 4.0}}; // Ejemplo de valores en A
-    // double x[MAX] = {1.0, 1.0};  // Ejemplo de valores en x
-    // double y[MAX] = {0.0, 0.0};  // Inicializar y a 0
-    double A[MAX][MAX], x[MAX], y[MAX];  // Declarar las matrices y vectores
-
-    /* First pair of loops */
-    auto start1 = chrono::high_resolution_clock::now();  // Inicio del tiempo del primer par de bucles
-    for (i = 0; i < MAX; i++) {
-        y[i] = 0.0;  // Inicializar y[i] a 0 antes de la suma
-        for (j = 0; j < MAX; j++) {
-            y[i] += A[i][j] * x[j];
-            cout << "i: " << i << " j: " << j << " y[i]: " << y[i] << endl;
+    // Inicializar A y x, y asignar y = 0
+    for (int i = 0; i < MAX; i++) {
+        x[i] = 1.0;  // Por ejemplo, inicializamos el vector x a 1.0
+        y[i] = 0.0;  // Inicializar el vector y a 0.0
+        for (int j = 0; j < MAX; j++) {
+            A[i][j] = 1.0;  // Inicializamos la matriz A a 1.0
         }
     }
 
-    auto end1 = chrono::high_resolution_clock::now();  // Fin del tiempo del primer par de bucles
-    auto duration1 = chrono::duration_cast<chrono::microseconds>(end1 - start1).count();  // Duración en microsegundos
-
-    cout << "Tiempo de ejecución del primer par de bucles: " << duration1 << " microsegundos" << endl;
-    cout << "-------------------" << endl;
+    // Medir el tiempo de la primera sección de bucles
+    clock_t start1 = clock();
     
-    // Reinicializar el vector y para el segundo cálculo
-    for (i = 0; i < MAX; i++) {
-        y[i] = 0.0;  // Inicializar y[i] a 0 nuevamente
-    }
-
-    /* Second pair of loops */
-    auto start2 = chrono::high_resolution_clock::now();  // Inicio del tiempo del segundo par de bucles
-    
-    for (j = 0; j < MAX; j++) {
-        for (i = 0; i < MAX; i++) {
+    for (int i = 0; i < MAX; i++) {
+        for (int j = 0; j < MAX; j++) {
             y[i] += A[i][j] * x[j];
-            cout << "i: " << i << " j: " << j << " y[i]: " << y[i] << endl;
         }
     }
+    
+    clock_t end1 = clock();
+    double time1 = double(end1 - start1) / CLOCKS_PER_SEC;
+    
+    std::cout << "Tiempo para la primera sección de bucles: " << time1 << " segundos" << std::endl;
 
-    auto end2 = chrono::high_resolution_clock::now();  // Fin del tiempo del segundo par de bucles
-    auto duration2 = chrono::duration_cast<chrono::microseconds>(end2 - start2).count();  // Duración en microsegundos
+    // Asignar y = 0 nuevamente antes de la segunda sección de bucles
+    for (int i = 0; i < MAX; i++) {
+        y[i] = 0.0;
+    }
 
-    cout << "Tiempo de ejecución del segundo par de bucles: " << duration2 << " microsegundos" << endl;
+    // Medir el tiempo de la segunda sección de bucles
+    clock_t start2 = clock();
+    
+    for (int j = 0; j < MAX; j++) {
+        for (int i = 0; i < MAX; i++) {
+            y[i] += A[i][j] * x[j];
+        }
+    }
+    
+    clock_t end2 = clock();
+    double time2 = double(end2 - start2) / CLOCKS_PER_SEC;
+    
+    std::cout << "Tiempo para la segunda sección de bucles: " << time2 << " segundos" << std::endl;
+
+    // Liberar la memoria dinámica
+    for (int i = 0; i < MAX; i++) {
+        delete[] A[i];
+    }
+    delete[] A;
+    delete[] x;
+    delete[] y;
 
     return 0;
 }
